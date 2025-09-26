@@ -1,0 +1,4 @@
+{
+  "token1": { "organizationId": "orgId1", "keyId": "key1" },
+  "token2": { "organizationId": "orgId2", "keyId": "key2" }
+}

@@ -1,0 +1,35 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": ".NET Core Launch (web)",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "dotnet: build",
+      "program": "${workspaceFolder}/bin/Debug/net8.0/DuplicatiIngress.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}",
+      "stopAtEntry": false,
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_URLS": "https://localhost:5004",
+        "ENVIRONMENT__ISPROD": "false",
+        "ENVIRONMENT__HOSTNAME": "localhost",
+        "ENVIRONMENT__MACHINENAME": "localhost",
+        "ENVIRONMENT__STORAGE": "file://data?pathmapped=true",
+        "ENVIRONMENT__REDIRECTURL": "https://localhost:5001",
+        "INGRESS__JWT__AUTHORITY": "https://localhost:5001",
+        "INGRESS__JWT__AUDIENCE": "https://localhost:5001",
+        "INGRESS__JWT__SIGNINGKEY": "insecure-signing-key-for-debug",
+        "ENCRYPTIONKEY__KEY1": "insecure-key-no1",
+        "ENCRYPTIONKEY__KEY2": "another-insecure-test-key",
+        "PRECONFIGUREDTOKENS__STORAGE": "file://.?pathmapped=true",
+        "PRECONFIGUREDTOKENS__WHITELISTENTRY": "whitelisted-example.json",
+        "PRECONFIGUREDTOKENS__BLACKLISTENTRY": "blacklisted-example.json"
+      }
+    }
+  ]
+}
