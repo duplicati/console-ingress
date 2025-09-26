@@ -30,6 +30,6 @@ jobs:
           context: .
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/myimage:$(echo $GITHUB_SHA | head -c7)
-            ${{ secrets.DOCKERHUB_USERNAME }}/myimage:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/myimage:$(echo ${GITHUB_REF_NAME#release/})
+            duplicati/console-ingress:$(echo $GITHUB_SHA | head -c7)
+            duplicati/console-ingress:latest
+            duplicati/console-ingress:$(echo ${GITHUB_REF_NAME#release/})
