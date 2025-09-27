@@ -34,7 +34,7 @@ var envConfig = builder.Configuration.GetRequiredSection("Environment").Get<Envi
 builder.Services.AddSingleton(envConfig);
 
 // Prepare logging
-var envLogLevel = Environment.GetEnvironmentVariable("SERILOG__MINIMUMLEVEL__DEFAULT");
+var envLogLevel = builder.Configuration.GetValue<string>("Serilog:MinimumLevel:Default");
 var logLevelSwitch = new LoggingLevelSwitch(
     !string.IsNullOrWhiteSpace(envLogLevel)
         ? Enum.Parse<LogEventLevel>(envLogLevel)
@@ -51,13 +51,10 @@ var logConfiguration = new LoggerConfiguration()
     .WriteTo.Console();
 
 builder.Host.UseSerilog();
-builder.Configuration.AddJsonFile("appsettings.json", optional: true, reloadOnChange: false);
 
 // Support the untracked local environment variables file for development
 if (builder.Environment.IsDevelopment())
 {
-    builder.Configuration.AddJsonFile("local.environmentvariables.json", optional: true, reloadOnChange: false);
-
     // Load into environment variables as well
     var localEnvironmentVariables = new ConfigurationBuilder()
            .AddJsonFile("local.environmentvariables.json", optional: true, reloadOnChange: false)
