@@ -152,18 +152,14 @@ builder.Services.AddMassTransit(x =>
 
 
 var app = builder.Build();
-app.UseForwardedHeaders(new ForwardedHeadersOptions
-{
-    ForwardedHeaders = ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedFor
-});
-
 app.UseSerilogRequestLogging(options =>
 {
     options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
     {
+        var proto = httpContext.Request.Headers["X-Forwarded-Proto"].FirstOrDefault() ?? httpContext.Request.Scheme;
         diagnosticContext.Set("RequestHost", httpContext.Request.Host.Value);
         diagnosticContext.Set("HttpRequestType", httpContext.Request.Method);
-        diagnosticContext.Set("HttpRequestUrl", $"{httpContext.Request.Scheme}://{httpContext.Request.Host}{httpContext.Request.Path}{httpContext.Request.QueryString}");
+        diagnosticContext.Set("HttpRequestUrl", $"{proto}://{httpContext.Request.Host}{httpContext.Request.Path}{httpContext.Request.QueryString}");
         diagnosticContext.Set("HttpRequestId", httpContext.TraceIdentifier);
     };
 });
