@@ -45,6 +45,7 @@ var logConfiguration = new LoggerConfiguration()
     .Enrich.FromLogContext()
     .Enrich.WithClientIp()
     .Enrich.WithCorrelationId(headerName: "X-Request-Id")
+    .Enrich.WithRequestHeader("X-Forwarded-For")
     .Enrich.WithRequestHeader("User-Agent")
     .MinimumLevel.ControlledBy(logLevelSwitch)
     .WriteTo.Console();
