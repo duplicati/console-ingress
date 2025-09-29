@@ -42,11 +42,10 @@ var logLevelSwitch = new LoggingLevelSwitch(
 
 var logConfiguration = new LoggerConfiguration()
     .Enrich.FromLogContext()
-    .Enrich.WithHttpRequestType()
-    .Enrich.WithHttpRequestUrl()
-    .Enrich.WithHttpRequestId()
+    .Enrich.WithClientIp()
+    .Enrich.WithCorrelationId(headerName: "X-Request-Id")
     .Enrich.WithRequestHeader("X-Forwarded-For", "ClientIp")
-    .Enrich.WithRequestHeader("User-Agent", "UserAgent")
+    .Enrich.WithRequestHeader("User-Agent")
     .MinimumLevel.ControlledBy(logLevelSwitch)
     .WriteTo.Console();
 
@@ -158,6 +157,9 @@ app.UseSerilogRequestLogging(options =>
     options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
     {
         diagnosticContext.Set("RequestHost", httpContext.Request.Host.Value);
+        diagnosticContext.Set("HttpRequestType", httpContext.Request.Method);
+        diagnosticContext.Set("HttpRequestUrl", $"{httpContext.Request.Scheme}://{httpContext.Request.Host}{httpContext.Request.Path}{httpContext.Request.QueryString}");
+        diagnosticContext.Set("HttpRequestId", httpContext.TraceIdentifier);
     };
 });
 
