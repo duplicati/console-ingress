@@ -21,6 +21,7 @@ using DuplicatiIngress;
 using MassTransit;
 using MassTransit.SqlTransport.PostgreSql;
 using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using RobotsTxt;
@@ -44,7 +45,6 @@ var logConfiguration = new LoggerConfiguration()
     .Enrich.FromLogContext()
     .Enrich.WithClientIp()
     .Enrich.WithCorrelationId(headerName: "X-Request-Id")
-    .Enrich.WithRequestHeader("X-Forwarded-For", "ClientIp")
     .Enrich.WithRequestHeader("User-Agent")
     .MinimumLevel.ControlledBy(logLevelSwitch)
     .WriteTo.Console();
@@ -152,6 +152,11 @@ builder.Services.AddMassTransit(x =>
 
 
 var app = builder.Build();
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedFor
+});
+
 app.UseSerilogRequestLogging(options =>
 {
     options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
