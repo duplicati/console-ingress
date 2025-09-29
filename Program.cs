@@ -163,6 +163,8 @@ app.UseSerilogRequestLogging(options =>
     };
 });
 
+app.UseSecurityFilter();
+
 app.MapPost("/backupreports/{token}",
     async ([FromServices] IngressHandler handler, [FromRoute] string token, CancellationToken ct) =>
     {
