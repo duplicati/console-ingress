@@ -90,7 +90,7 @@ public sealed record PreconfiguredTokensConfig
 /// <summary>
 /// Service for getting information about preconfigured tokens
 /// </summary>
-public class PreconfiguredTokens(IEncryptionKeyProvider encryptionKeyProvider, PreconfiguredTokensConfig preconfiguredTokensConfig) : IPreconfiguredTokens
+public class PreconfiguredTokens(IEncryptionKeyProvider encryptionKeyProvider, PreconfiguredTokensConfig preconfiguredTokensConfig, EnvironmentConfig environmentConfig) : IPreconfiguredTokens
 {
     /// <inheritdoc />
     public ParsedIngressToken? GetPreconfiguredToken(string token)
@@ -101,12 +101,18 @@ public class PreconfiguredTokens(IEncryptionKeyProvider encryptionKeyProvider, P
         if (preconfiguredTokensConfig.BlacklistTokens.Contains(token))
             throw new SecurityTokenValidationException("Invalid token, blacklisted");
 
-        if (preconfiguredTokensConfig.WhitelistTokens.TryGetValue(token, out var tokenEntry) && !string.IsNullOrWhiteSpace(tokenEntry?.OrganizationId) && !string.IsNullOrWhiteSpace(tokenEntry?.KeyId))
+        if (preconfiguredTokensConfig.WhitelistTokens.TryGetValue(token, out var tokenEntry) && !string.IsNullOrWhiteSpace(tokenEntry?.OrganizationId))
         {
-            var encryptionKey = encryptionKeyProvider.GetEncryptionKey(tokenEntry.KeyId);
-            if (string.IsNullOrWhiteSpace(encryptionKey))
-                throw new SecurityTokenValidationException("Invalid token, key not found");
-            return new ParsedIngressToken(tokenEntry.OrganizationId, tokenEntry.KeyId, encryptionKey);
+            if (environmentConfig.DisableReportEncryption ?? false)
+                return new ParsedIngressToken(tokenEntry.OrganizationId, null!, null!);
+
+            if (!string.IsNullOrWhiteSpace(tokenEntry?.KeyId))
+            {
+                var encryptionKey = encryptionKeyProvider.GetEncryptionKey(tokenEntry.KeyId);
+                if (string.IsNullOrWhiteSpace(encryptionKey))
+                    throw new SecurityTokenValidationException("Invalid token, key not found");
+                return new ParsedIngressToken(tokenEntry.OrganizationId, tokenEntry.KeyId, encryptionKey);
+            }
         }
 
         return null;

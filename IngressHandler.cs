@@ -30,12 +30,14 @@ namespace DuplicatiIngress;
 /// <summary>
 /// Represents the ingress handler
 /// </summary>
+/// <param name="environmentConfig">The environment configuration</param>
 /// <param name="httpContextAccessor">The HTTP context accessor</param>
 /// <param name="legacyTokens">The legacy tokens</param>
 /// <param name="jWTValidator">The JWT validator</param>
 /// <param name="busControl">The bus control</param>
 /// <param name="storage">The storage</param>
 public class IngressHandler(
+    EnvironmentConfig environmentConfig,
     IHttpContextAccessor httpContextAccessor,
     IPreconfiguredTokens preconfiguredTokens,
     IJWTValidator jWTValidator,
@@ -71,7 +73,7 @@ public class IngressHandler(
 
             // 2. Generate a filename
             var uuid = Uuid7.String();
-            var filename = $"{parsedToken.OrganizationId}/{uuid}.json.aes";
+            var filename = $"{parsedToken.OrganizationId}/{uuid}.json{(environmentConfig.DisableReportEncryption ?? false ? "" : ".aes")}";
 
             // 4. Rudimentary validation of input
             tempFileToDelete = Path.GetTempFileName();
@@ -102,20 +104,30 @@ public class IngressHandler(
                 throw new UserReportedException("Payload is not valid JSON", statuscode: 400, exception: ex);
             }
 
-            // 5. Encrypt with AESCrypt
-            encFileToDelete = Path.GetTempFileName();
-            var encHeaders = new KeyValuePair<string, byte[]>("key", Encoding.UTF8.GetBytes(parsedToken.KeyId));
-            var options = new SharpAESCrypt.EncryptionOptions(InsertPlaceholder: false, AdditionalExtensions: [encHeaders]);
+            string fileToUpload;
+            if (environmentConfig.DisableReportEncryption ?? false)
+            {
+                fileToUpload = tempFileToDelete;
+            }
+            else
+            {
+                // 5. Encrypt with AESCrypt
+                encFileToDelete = Path.GetTempFileName();
+                var encHeaders = new KeyValuePair<string, byte[]>("key", Encoding.UTF8.GetBytes(parsedToken.KeyId));
+                var options = new SharpAESCrypt.EncryptionOptions(InsertPlaceholder: false, AdditionalExtensions: [encHeaders]);
 
-            using (var s1 = File.OpenRead(tempFileToDelete))
-            using (var s2 = File.OpenWrite(encFileToDelete))
-                await SharpAESCrypt.AESCrypt.EncryptAsync(parsedToken.EncryptionKey, s1, s2, options, ct);
+                using (var s1 = File.OpenRead(tempFileToDelete))
+                using (var s2 = File.OpenWrite(encFileToDelete))
+                    await SharpAESCrypt.AESCrypt.EncryptAsync(parsedToken.EncryptionKey, s1, s2, options, ct);
+
+                fileToUpload = encFileToDelete;
+            }
 
             // 6. Store the payload with IKVPS
             var uploaded = false;
             try
             {
-                using (var fs = File.OpenRead(encFileToDelete))
+                using (var fs = File.OpenRead(fileToUpload))
                     await storage.WriteAsync(filename, fs, ct);
                 uploaded = true;
             }
