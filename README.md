@@ -20,6 +20,31 @@ The ingress server is intended to have very few moving parts and generally just 
 
 ---
 
+## Required environment variables
+
+| Variable                      | Description                                                           |
+| ----------------------------- | --------------------------------------------------------------------- |
+| ENVIRONMENT\_\_ISPROD         | Production environment flag (false indicates development environment) |
+| ENVIRONMENT\_\_STORAGE        | KVPSButter connection string for report storage                       |
+| MESSAGING\_\_CONNECTIONSTRING | PostgreSQL connection string for connecting to the message bus        |
+| ENCRYPTIONKEY\_\_???          | One or more encryption keys for encrypting backup reports             |
+| INGRESS\_\_JWT\_\_AUTHORITY   | The authority that issued the JWT token (must match issuer config)    |
+| INGRESS\_\_JWT\_\_AUDIENCE    | The audience for the JWT token (must match issuer config)             |
+| INGRESS\_\_JWT\_\_SIGNINGKEY  | The signing key for the JWT token (must match issuers config)         |
+
+## Optional environment variables
+
+The following environment variables are optional, and should be considered for a production deployment:
+
+| Variable                         | Description                                                                   |
+| -------------------------------- | ----------------------------------------------------------------------------- |
+| ENVIRONMENT\_\_HOSTNAME          | The server hostname for logging purposes                                      |
+| ENVIRONMENT\_\_MACHINENAME       | Name of the machine for logging purposes                                      |
+| ENVIRONMENT\_\_REDIRECTURL       | Url to redirect to when visiting the root path                                |
+| PRECONFIGUREDTOKENS\_\_STORAGE   | The KVPSButter connection string to the storage that contains an IP blacklist |
+| PRECONFIGUREDTOKENS\_\_WHITELIST | The key that contains the IP blacklist                                        |
+| PRECONFIGUREDTOKENS\_\_BLACKLIST | The key that contains the IP blacklist                                        |
+
 ## Setting Up Local Development Environment
 
 This project uses environment variables to configure the application during startup.

@@ -44,7 +44,7 @@ public record MessagingConfig(string ConnectionString);
 /// <param name="RedirectUrl">The redirect URL for unmatched requests to the server</param>
 /// <param name="MachineName">The machine name</param>
 public record EnvironmentConfig(
-    string Hostname,
+    string? Hostname,
     bool IsProd,
     string Storage,
     string? RedirectUrl = null,

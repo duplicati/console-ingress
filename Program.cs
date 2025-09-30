@@ -21,7 +21,6 @@ using DuplicatiIngress;
 using MassTransit;
 using MassTransit.SqlTransport.PostgreSql;
 using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using RobotsTxt;
@@ -114,7 +113,7 @@ if (!envConfig.IsProd)
 builder.Services.AddSingleton(KVPSButter.KVPSLoader.CreateIKVPS(envConfig.Storage));
 
 Log.Logger = logConfiguration
-    .Enrich.WithProperty("Hostname", envConfig.Hostname)
+    .Enrich.WithProperty("Hostname", envConfig.Hostname ?? Environment.MachineName)
     .Enrich.WithProperty("MachineName", envConfig.MachineName)
     .Enrich.WithProperty("IsProd", envConfig.IsProd)
     .CreateLogger();
