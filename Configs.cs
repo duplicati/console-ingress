@@ -43,12 +43,14 @@ public record MessagingConfig(string ConnectionString);
 /// <param name="Storage">The storage</param>
 /// <param name="RedirectUrl">The redirect URL for unmatched requests to the server</param>
 /// <param name="MachineName">The machine name</param>
+/// <param name="DisableReportEncryption">Whether to disable encryption on stored reports</param>
 public record EnvironmentConfig(
     string? Hostname,
     bool IsProd,
     string Storage,
     string? RedirectUrl = null,
-    string? MachineName = null
+    string? MachineName = null,
+    bool? DisableReportEncryption = null
 );
 
 /// <summary>

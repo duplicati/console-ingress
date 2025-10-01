@@ -36,14 +36,18 @@ The ingress server is intended to have very few moving parts and generally just 
 
 The following environment variables are optional, and should be considered for a production deployment:
 
-| Variable                         | Description                                                                   |
-| -------------------------------- | ----------------------------------------------------------------------------- |
-| ENVIRONMENT\_\_HOSTNAME          | The server hostname for logging purposes                                      |
-| ENVIRONMENT\_\_MACHINENAME       | Name of the machine for logging purposes                                      |
-| ENVIRONMENT\_\_REDIRECTURL       | Url to redirect to when visiting the root path                                |
-| PRECONFIGUREDTOKENS\_\_STORAGE   | The KVPSButter connection string to the storage that contains an IP blacklist |
-| PRECONFIGUREDTOKENS\_\_WHITELIST | The key that contains the IP blacklist                                        |
-| PRECONFIGUREDTOKENS\_\_BLACKLIST | The key that contains the IP blacklist                                        |
+| Variable                               | Description                                                                    |
+| -------------------------------------- | ------------------------------------------------------------------------------ |
+| ENVIRONMENT\_\_HOSTNAME                | The server hostname for logging purposes                                       |
+| ENVIRONMENT\_\_MACHINENAME             | Name of the machine for logging purposes                                       |
+| ENVIRONMENT\_\_REDIRECTURL             | Url to redirect to when visiting the root path                                 |
+| ENVIRONMENT\_\_DISABLEREPORTENCRYPTION | Disables encrypting received backup reports on storage                         |
+| PRECONFIGUREDTOKENS\_\_STORAGE         | The KVPSButter connection string to the storage that contains an IP blacklist  |
+| PRECONFIGUREDTOKENS\_\_WHITELIST       | The key that contains the IP blacklist                                         |
+| PRECONFIGUREDTOKENS\_\_BLACKLIST       | The key that contains the IP blacklist                                         |
+| SECURITY\_\_MAXREQUESTSPERSECONDPERIP  | The maximum number of request from a single IP per second before throttling it |
+| SECURITY\_\_FILTERPATTERNS             | Boolean toggling filtering of scanning patterns                                |
+| SECURITY\_\_RATELIMITENABLED           | Boolean toggling if IP rate limiting is enabled                                |
 
 ## Setting Up Local Development Environment
 

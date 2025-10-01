@@ -48,14 +48,20 @@ public class JWTValidator : IJWTValidator
     private readonly IEncryptionKeyProvider EncryptionKeyProvider;
 
     /// <summary>
+    /// The environment configuration
+    /// </summary>
+    private readonly EnvironmentConfig EnvironmentConfig;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="JWTValidator"/> class
     /// </summary>
     /// <param name="encryptionKeyProvider">The encryption key provider</param>
     /// <param name="jWTConfig">The JWT configuration</param>
-    public JWTValidator(IEncryptionKeyProvider encryptionKeyProvider, JWTConfig jWTConfig)
+    public JWTValidator(IEncryptionKeyProvider encryptionKeyProvider, JWTConfig jWTConfig, EnvironmentConfig environmentConfig)
     {
         EncryptionKeyProvider = encryptionKeyProvider;
         TokenValidationParameters = GetTokenValidationParameters(jWTConfig);
+        EnvironmentConfig = environmentConfig;
     }
 
     /// <summary>
@@ -125,6 +131,9 @@ public class JWTValidator : IJWTValidator
 
         if (string.IsNullOrWhiteSpace(orgId))
             throw new SecurityTokenValidationException("Organization ID is missing");
+
+        if (EnvironmentConfig.DisableReportEncryption ?? false)
+            return new ParsedIngressToken(orgId, null!, null!);
 
         if (string.IsNullOrWhiteSpace(keyId))
             throw new SecurityTokenValidationException("Key ID is missing");
