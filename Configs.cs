@@ -23,13 +23,6 @@ using Microsoft.IdentityModel.Tokens;
 namespace DuplicatiIngress;
 
 /// <summary>
-/// Represents the Serilog configuration
-/// </summary>
-/// <param name="SourceToken">The Source Token</param>
-/// <param name="Endpoint">The endpoint for the ingesting host</param>
-public record SerilogConfig(string SourceToken, string? Endpoint = null);
-
-/// <summary>
 /// Represents the Messaging configuration
 /// </summary>
 /// <param name="ConnectionString">The Messaging connection string</param>

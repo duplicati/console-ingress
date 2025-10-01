@@ -17,6 +17,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
+using CommonLoggingConfig;
 using DuplicatiIngress;
 using MassTransit;
 using MassTransit.SqlTransport.PostgreSql;
@@ -25,32 +26,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using RobotsTxt;
 using Serilog;
-using Serilog.Core;
-using Serilog.Events;
 using SimpleSecurityFilter;
 
 var builder = WebApplication.CreateBuilder(args);
-
-var envConfig = builder.Configuration.GetRequiredSection("Environment").Get<EnvironmentConfig>()!;
-builder.Services.AddSingleton(envConfig);
-
-// Prepare logging
-var envLogLevel = builder.Configuration.GetValue<string>("Serilog:MinimumLevel:Default");
-var logLevelSwitch = new LoggingLevelSwitch(
-    !string.IsNullOrWhiteSpace(envLogLevel)
-        ? Enum.Parse<LogEventLevel>(envLogLevel)
-        : LogEventLevel.Information);
-
-var logConfiguration = new LoggerConfiguration()
-    .Enrich.FromLogContext()
-    .Enrich.WithClientIp()
-    .Enrich.WithCorrelationId(headerName: "X-Request-Id")
-    .Enrich.WithRequestHeader("X-Forwarded-For")
-    .Enrich.WithRequestHeader("User-Agent")
-    .MinimumLevel.ControlledBy(logLevelSwitch)
-    .WriteTo.Console();
-
-builder.Host.UseSerilog();
 
 // Support the untracked local environment variables file for development
 if (builder.Environment.IsDevelopment())
@@ -66,25 +44,14 @@ if (builder.Environment.IsDevelopment())
 
 builder.Configuration.AddEnvironmentVariables();
 
-var serilogConfig = builder.Configuration.GetSection("Serilog").Get<SerilogConfig>();
-if (!string.IsNullOrWhiteSpace(serilogConfig?.SourceToken))
-{
-    if (string.IsNullOrWhiteSpace(serilogConfig.Endpoint))
-    {
-        logConfiguration = logConfiguration.WriteTo.BetterStack(
-            sourceToken: serilogConfig.SourceToken
-        );
-    }
-    else
-    {
-        logConfiguration = logConfiguration.WriteTo.BetterStack(
-            sourceToken: serilogConfig.SourceToken,
-            betterStackEndpoint: serilogConfig.Endpoint
-        );
-    }
-}
+var envConfig = builder.Configuration.GetRequiredSection("Environment").Get<EnvironmentConfig>()!;
+builder.Services.AddSingleton(envConfig);
 
-builder.Services.AddHttpContextAccessor();
+var serilogConfig = builder.Configuration.GetSection("Serilog").Get<SerilogConfig>();
+var extras = new LoggingExtras() { IsProd = envConfig.IsProd, Hostname = envConfig.Hostname, MachineName = envConfig.MachineName };
+
+builder.AddCommonLogging(serilogConfig, extras);
+
 
 var securityconfig = builder.Configuration.GetSection("Security").Get<SimpleSecurityOptions>();
 builder.AddSimpleSecurityFilter(securityconfig, msg => Log.Warning(msg));
@@ -115,12 +82,6 @@ if (!envConfig.IsProd)
 }
 
 builder.Services.AddSingleton(KVPSButter.KVPSLoader.CreateIKVPS(envConfig.Storage));
-
-Log.Logger = logConfiguration
-    .Enrich.WithProperty("Hostname", envConfig.Hostname ?? Environment.MachineName)
-    .Enrich.WithProperty("MachineName", envConfig.MachineName)
-    .Enrich.WithProperty("IsProd", envConfig.IsProd)
-    .CreateLogger();
 
 var preconfiguredTokenConfig = await PreconfiguredTokens.LoadFromStorage(builder.Configuration.GetSection("PreconfiguredTokens").Get<TokenRuleOverrideConfig>());
 
@@ -156,17 +117,7 @@ builder.Services.AddMassTransit(x =>
 
 
 var app = builder.Build();
-app.UseSerilogRequestLogging(options =>
-{
-    options.EnrichDiagnosticContext = (diagnosticContext, httpContext) =>
-    {
-        var proto = httpContext.Request.Headers["X-Forwarded-Proto"].FirstOrDefault() ?? httpContext.Request.Scheme;
-        diagnosticContext.Set("RequestHost", httpContext.Request.Host.Value);
-        diagnosticContext.Set("HttpRequestType", httpContext.Request.Method);
-        diagnosticContext.Set("HttpRequestUrl", $"{proto}://{httpContext.Request.Host}{httpContext.Request.Path}{httpContext.Request.QueryString}");
-        diagnosticContext.Set("HttpRequestId", httpContext.TraceIdentifier);
-    };
-});
+app.UseCommonLogging();
 
 app.UseSimpleSecurityFilter(securityconfig);
 

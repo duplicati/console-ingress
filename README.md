@@ -47,6 +47,8 @@ The following environment variables are optional, and should be considered for a
 | SECURITY\_\_MAXREQUESTSPERSECONDPERIP | The maximum number of request from a single IP per second before throttling it |
 | SECURITY\_\_FILTERPATTERNS            | Boolean toggling filtering of scanning patterns                                |
 | SECURITY\_\_RATELIMITENABLED          | Boolean toggling if IP rate limiting is enabled                                |
+| SERILOG\_\_SOURCETOKEN                | The token used to log data from serilog                                        |
+| SERILOG\_\_ENDPOINT                   | The serilog endpoint to send logs to                                           |
 
 ## Setting Up Local Development Environment
 
