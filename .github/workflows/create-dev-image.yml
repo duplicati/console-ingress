@@ -21,9 +21,6 @@ jobs:
       - name: Set image tag vars
         run: |
           echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
-          NAME=${GITHUB_REF_NAME#release/}
-          NAME=${NAME//\//-}
-          echo "BRANCH_TAG=$NAME" >> $GITHUB_ENV
 
       - name: Build and push
         uses: docker/build-push-action@v5
