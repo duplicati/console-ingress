@@ -20,7 +20,7 @@
     <PackageReference Include="RobotsTxtCore" Version="3.0.0" />
 
     <PackageReference Include="SimpleSecurityFilter" Version="1.0.2" />
-    <PackageReference Include="CommonDuplicatiConsoleLogging" Version="1.0.1" />      
+    <PackageReference Include="CommonDuplicatiConsoleLogging" Version="1.0.2" />      
   </ItemGroup>
 
 </Project>
