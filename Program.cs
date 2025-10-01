@@ -27,6 +27,7 @@ using RobotsTxt;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
+using SimpleSecurityFilter;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -84,6 +85,9 @@ if (!string.IsNullOrWhiteSpace(serilogConfig?.SourceToken))
 }
 
 builder.Services.AddHttpContextAccessor();
+
+var securityconfig = builder.Configuration.GetSection("Security").Get<SimpleSecurityOptions>();
+builder.AddSimpleSecurityFilter(securityconfig, msg => Log.Warning(msg));
 
 // Load encryption keys
 var encryptionKeys = builder.Configuration.GetSection("EncryptionKey")
@@ -164,7 +168,7 @@ app.UseSerilogRequestLogging(options =>
     };
 });
 
-app.UseSecurityFilter();
+app.UseSimpleSecurityFilter(securityconfig);
 
 app.MapPost("/backupreports/{token}",
     async ([FromServices] IngressHandler handler, [FromRoute] string token, CancellationToken ct) =>
