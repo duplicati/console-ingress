@@ -17,7 +17,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
-using CommonLoggingConfig;
+using ConsoleCommon;
 using DuplicatiIngress;
 using MassTransit;
 using MassTransit.SqlTransport.PostgreSql;
@@ -26,7 +26,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using RobotsTxt;
 using Serilog;
-using SimpleSecurityFilter;
 
 var builder = WebApplication.CreateBuilder(args);
 
