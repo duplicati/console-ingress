@@ -19,7 +19,7 @@
     <PackageReference Include="UuidExtensions" Version="1.2.0" />
     <PackageReference Include="RobotsTxtCore" Version="3.0.0" />
 
-    <PackageReference Include="DuplicatiConsoleCommon" Version="1.0.0" />
+    <PackageReference Include="DuplicatiConsoleCommon" Version="1.0.1" />
   </ItemGroup>
 
 </Project>

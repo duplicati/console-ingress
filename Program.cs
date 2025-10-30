@@ -30,18 +30,7 @@ using Serilog;
 var builder = WebApplication.CreateBuilder(args);
 
 // Support the untracked local environment variables file for development
-if (builder.Environment.IsDevelopment())
-{
-    // Load into environment variables as well
-    var localEnvironmentVariables = new ConfigurationBuilder()
-           .AddJsonFile("local.environmentvariables.json", optional: true, reloadOnChange: false)
-           .Build().AsEnumerable().ToList();
-
-    foreach (var (key, value) in localEnvironmentVariables)
-        Environment.SetEnvironmentVariable(key, value);
-}
-
-builder.Configuration.AddEnvironmentVariables();
+ConfigureDevSetup.ConfigureForDevelopment(builder);
 
 var envConfig = builder.Configuration.GetRequiredSection("Environment").Get<EnvironmentConfig>()!;
 builder.Services.AddSingleton(envConfig);
